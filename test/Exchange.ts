@@ -25,23 +25,23 @@ describe("Exchange", () => {
 
     accounts = await ethers.getSigners();
     [deployer, feeAccount, user1, user2] = accounts;
-    //@ts-ignore
+    //@ts-expect-error ...
     token1 = await Token.deploy("With Ease", "WEZ", "1000000");
-    //@ts-ignore
+    //@ts-expect-error ...
     token2 = await Token.deploy("Mock Token", "MTK", "1000000");
 
-    //@ts-ignore
+    //@ts-expect-error ...
     exchange = await Exchange.deploy(await feeAccount.getAddress(), feePercent);
-    //@ts-ignore
+    //@ts-expect-error ...
     await token1.connect(deployer).transfer(await user1.getAddress(), tokens(1000));
-    //@ts-ignore
+    //@ts-expect-error ...
     await token2.connect(deployer).transfer(await user2.getAddress(), tokens(1000));
   });
 
   const expectEvent = async (
     transaction: ContractTransactionResponse,
     eventName: string,
-    expectedArgs: any
+    expectedArgs: object,
   ) => {
     const receipt = await transaction.wait();
     expect(receipt).to.not.be.null;
@@ -53,6 +53,7 @@ describe("Exchange", () => {
       if (event && event instanceof ethers.EventLog) {
         expect(event.eventName).to.equal(eventName);
         Object.keys(expectedArgs).forEach((key, index) => {
+          //@ts-expect-error ...
           expect(event.args[index]).to.equal(expectedArgs[key]);
         });
       }
@@ -73,9 +74,9 @@ describe("Exchange", () => {
     let transaction: ContractTransactionResponse;
 
     beforeEach(async () => {
-      //@ts-ignore
+      //@ts-expect-error ...
       await token1.connect(user1).approve(await exchange.getAddress(), amount);
-      //@ts-ignore
+      //@ts-expect-error ...
       transaction = await exchange.connect(user1).depositToken(await token1.getAddress(), amount);
     });
 
@@ -99,7 +100,7 @@ describe("Exchange", () => {
     describe("Failure", () => {
       it("fails when no tokens are approved", async () => {
         await expect(
-          //@ts-ignore
+          //@ts-expect-error ...
           exchange.connect(user2).depositToken(await token1.getAddress(), amount)
         ).to.be.revertedWith("ERC20: insufficient allowance");
       });
@@ -113,30 +114,30 @@ describe("Exchange", () => {
   
     beforeEach(async () => {
       // User1 approves and deposits token1
-      //@ts-ignore
+      //@ts-expect-error ...
       await token1.connect(user1).approve(await exchange.getAddress(), tradeAmount);
-      //@ts-ignore
+      //@ts-expect-error ...
       await exchange.connect(user1).depositToken(await token1.getAddress(), tradeAmount);
   
       // User2 approves and deposits token2 (including fee)
-      //@ts-ignore
+      //@ts-expect-error ...
       await token2.connect(user2).approve(await exchange.getAddress(), totalAmount);
-      //@ts-ignore
+      //@ts-expect-error ...
       await exchange.connect(user2).depositToken(await token2.getAddress(), totalAmount);
   
       // User1 makes an order
-      //@ts-ignore
+      //@ts-expect-error ...
       await exchange.connect(user1).makeOrder(await token2.getAddress(), tradeAmount, await token1.getAddress(), tradeAmount);
     });
   
     describe("Filling Order", () => {
       describe("Success", () => {
         let transaction: ContractTransactionResponse;
-        let user1Balance: any, user2Balance: any, feeAccountBalance: any;
+        let user1Balance: number, user2Balance: number, feeAccountBalance: number;
   
         beforeEach(async () => {
           // Fill the order
-          //@ts-ignore
+          //@ts-expect-error ...
           transaction = await exchange.connect(user2).fillOrder(1);
   
           // Get balances after the trade
@@ -173,25 +174,25 @@ describe("Exchange", () => {
       describe("Failure", () => {
         it("rejects invalid ids", async () => {
           await expect(
-            //@ts-ignore
+            //@ts-expect-error ...
             exchange.connect(user2).fillOrder(99999)
           ).to.be.revertedWith("Invalid order id");
         });
 
         it("rejects already filled orders", async () => {
-          //@ts-ignore
+          //@ts-expect-error ...
           await exchange.connect(user2).fillOrder(1);
           await expect(
-            //@ts-ignore
+            //@ts-expect-error ...
             exchange.connect(user2).fillOrder(1)
           ).to.be.revertedWith("Order already filled");
         });
 
         it("rejects cancelled orders", async () => {
-          //@ts-ignore
+          //@ts-expect-error ...
           await exchange.connect(user1).cancelOrder(1);
           await expect(
-            //@ts-ignore
+            //@ts-expect-error ...
             exchange.connect(user2).fillOrder(1)
           ).to.be.revertedWith("Cannot fill cancelled orders");
         });
