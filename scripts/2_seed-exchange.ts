@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import config from "../../src/config.json"
+import config from "../config.json"
 
 const tokens = (n: number): bigint => {
   return ethers.parseUnits(n.toString(), "ether");
